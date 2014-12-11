@@ -49,7 +49,13 @@
 		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
 		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
 	}
-	
+	td, th {
+    text-align: left;
+	height: 10px;
+    vertical-align: middle;
+	padding: 5px;
+	}
+
 	
 </style>
 </head>
@@ -60,6 +66,14 @@
 <div id="main">
 	<img src="store.png" alt="store" style="width:10%;height:10%">
 	<div class="store"><h1> Music Store</h1></div> 
+	</br>
+	<form name="form1" action="search.php" method='post'>
+		<input type="submit" name="Submit" class="button" value="Search"/>  	
+		<input name="search" type="text" size="15" maxlength="25"/>
+	</form>
+	</br>
+	</br>
+	</br>
 	<?php
 	// Create connection to MySQL server for ****XAMPP*****
 	$con=mysqli_connect("localhost","root","","inventory");
@@ -108,17 +122,15 @@ if(count($saved_cart)>0){
     foreach($saved_cart as $id=>$name){
         $ids = $ids . $id . ",";
     }
- 
-    // remove the last comma
+     // remove the last comma
     $ids = rtrim($ids, ',');
- 
-    //start table
+     //start table
     echo "<table>";
  
         // our table heading
         echo "<tr>";
 			echo "<th>Action</th>";
-            echo "<th class='textAlignLeft'>Band Name</th>";
+            echo "<th>Band Name</th>";
             echo "<th>Price (USD)</th>";
         echo "</tr>";
 				
