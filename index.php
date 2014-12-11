@@ -75,8 +75,7 @@
 	$result = mysqli_query($con, $sql_select);
 	 
 	while($row = mysqli_fetch_array($result)) {
-		echo '<a href="cart.php?selId='.$row['id'].'"class="button" >Add to Cart</a>';
-		
+		echo '<a href="cart.php?selId='.$row['id'].'&album='.$row['album'].'" class="button" >Add to Cart</a>';
 		echo '<b>'.$row['band'].' </b>';
 		echo "</br>";
 		echo '<div class="album"><b>Album Name:</b> '.$row['album'].' </div>';
@@ -98,10 +97,67 @@
 	<div class="store"><h1> Shopping Cart</h1></div> 
 	</br>
 	</br>
+	<?php
+		$cookie = $_COOKIE['cart_cookie'];
+		$cookie = stripslashes($cookie);
+		$saved_cart = json_decode($cookie, true);
+ 
+if(count($saved_cart)>0){
+    // get the music ids
+    $ids = "";
+    foreach($saved_cart as $id=>$name){
+        $ids = $ids . $id . ",";
+    }
+ 
+    // remove the last comma
+    $ids = rtrim($ids, ',');
+ 
+    //start table
+    echo "<table>";
+ 
+        // our table heading
+        echo "<tr>";
+			echo "<th>Action</th>";
+            echo "<th class='textAlignLeft'>Band Name</th>";
+            echo "<th>Price (USD)</th>";
+        echo "</tr>";
+				
+		// get all the information for each id
+        $sql_select = "SELECT id, band, album, price FROM music WHERE id IN ({$ids}) ORDER BY band";
+		$result = mysqli_query($con, $sql_select);
+        
+        $total_price=0;
+        while ($row = mysqli_fetch_array($result)){
+             
+            echo "<tr>";
+				 echo "<td>";
+                    echo "<a href='removeCart.php?id=".$row['id']."&band=".$row['band']."' class='button'>";
+                        echo "<span class='button'></span> Delete";
+                    echo "</a>";
+                echo "</td>";
+                echo "<td>".$row['band']."</td>";
+                echo "<td>$".$row['price']."</td>";
+            echo "</tr>";
+ 
+            $total_price+=$row['price'];
+        }
+ 
+        echo "<tr>";
+                echo "<td><b>Total</b></td>";
+                echo "<td>$".$total_price."</td>";
+        echo "</tr>";
+ 
+    echo "</table>";
+}
+ 
+else{
+    echo "<div class='alert alert-danger'>";
+        echo "<strong>No products found</strong> in your cart!";
+    echo "</div>";
+}
+ ?>
 	</br>
-	</br>
-	</br>
-	<a href="addinvent.php" class="button" >Add Inventory</a>
+	<a href="#" class="button" >Check Out</a>
 	</br>
 	</br>
 </div>	
