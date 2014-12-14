@@ -50,12 +50,15 @@
 		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
 	}
 	td, th {
-    text-align: left;
-	height: 10px;
-    vertical-align: middle;
-	padding: 5px;
+		text-align: left;
+		height: 10px;
+		vertical-align: middle;
+		padding: 5px;
 	}
-
+	td.border_top {
+		padding-top: 10px;
+		border-top:1pt solid black;
+	}
 	
 </style>
 </head>
@@ -68,23 +71,16 @@
 	<div class="store"><h1> Music Store</h1></div> 
 	</br>
 	<form name="form1" action="search.php" method='post'>
-		<input type="submit" name="Submit" class="button" value="Search"/>  	
+		<input type="submit" name="Submit" class="button" value="Search for Band"/>  	
 		<input name="search" type="text" size="15" maxlength="25"/>
 	</form>
 	</br>
 	</br>
 	</br>
 	<?php
-	// Create connection to MySQL server for ****XAMPP*****
-	$con=mysqli_connect("localhost","root","","inventory");
-	// Create connection to MySQL server for ****debbiebrahm.com*****
-	//$con=mysqli_connect("localhost","debbiebr_user","toilets","debbiebr_collections");
-	// Check connection
-	if (mysqli_connect_errno()) {
-		echo "Failed to connect to MySQL: " . mysqli_connect_error();
-	}
-
-	$sql_select = "SELECT * From music";
+	// Create connection to MySQL  
+	include("dbconnect.php");
+   	$sql_select = "SELECT * From music ORDER BY band";
 	// $result will actually be two dimentional array of the entire table
 	$result = mysqli_query($con, $sql_select);
 	 
@@ -112,10 +108,14 @@
 	</br>
 	</br>
 	<?php
-		$cookie = $_COOKIE['cart_cookie'];
-		$cookie = stripslashes($cookie);
-		$saved_cart = json_decode($cookie, true);
- 
+		$saved_cart = array();
+		
+		if (isset($_COOKIE["cart_cookie"])) {
+			$cookie = $_COOKIE['cart_cookie'];
+			$cookie = stripslashes($cookie);
+			$saved_cart = json_decode($cookie, true);
+		}
+
 if(count($saved_cart)>0){
     // get the music ids
     $ids = "";
@@ -153,17 +153,18 @@ if(count($saved_cart)>0){
  
             $total_price+=$row['price'];
         }
- 
+		
         echo "<tr>";
                 echo "<td><b>Total</b></td>";
-                echo "<td>$".$total_price."</td>";
+				echo "<td class='border_top' > </td>";
+                echo "<td class='border_top'>$".$total_price."</td>";
         echo "</tr>";
  
     echo "</table>";
 }
  
 else{
-    echo "<div class='alert alert-danger'>";
+    echo "<div>";
         echo "<strong>No products found</strong> in your cart!";
     echo "</div>";
 }
