@@ -3,15 +3,23 @@
 	if (!isset($_POST['search'])) {
 		header("Location:index.php");
 	}
-	echo "here here here";
+	
 	$var = $_POST['search'];
-	$sql_select = "SELECT * From music WHERE band LIKE '%$var%'";
+	$sql_select = "SELECT * From music 
+		ORDER BY 
+	CASE	
+		WHEN band LIKE '$var%' THEN 1
+		ELSE 2 
+	END, band ASC";
+	//$sql_select = "SELECT * 
+	//from music WHERE band LIKE '$var%'
+	//ORDER BY
+	//CASE when band LIKE '$var%' THEN NULL
+	//	ELSE band END ASC";
+	
 	//$result will actually be two dimentional array of the entire table
 	$result = mysqli_query($con, $sql_select);
-	$count = mysql_num_rows($result);
-	
-	if($count == 0) {
-		while($row = mysqli_fetch_array($result)) {
+	while($row = mysqli_fetch_array($result)) {
 		echo '<a href="cart.php?selId='.$row['id'].'&album='.$row['album'].'" class="button" >Add to Cart</a>';
 		echo '<b>'.$row['band'].' </b>';
 		echo "</br>";
@@ -22,7 +30,7 @@
 		echo '<div class="qty"><b>Quantity available:</b> '.$row['quantity_aval'].'</div>';
 		echo "</br>";
 		echo "</br>";
-		}
 	}
+	
 	?>
 	
