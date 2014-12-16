@@ -1,13 +1,13 @@
+
 <?php
 // initialize empty cart items array
 $cart_items=array();
  
-// get the music id and album name
+// get the music id and quantity
 $id = $_GET['selId'];
-$album = $_GET['album'];
- 
+$qty = 1; 
 // add new item on array
-$cart_items[$id]=$album;
+$cart_items[$id]=$qty;
  
 // read the cookie
 $cookie = $_COOKIE['cart_cookie'];
@@ -21,7 +21,7 @@ if(!$saved_cart){
  
 // check if the item is in the array, if it is, do not add
 if(array_key_exists($id, $saved_cart)){
-    // redirect to product list and tell the user it was already added to the cart
+    // redirect to music list
     header("location: index.php");
 }
  
@@ -36,7 +36,7 @@ else{
  
     // put item to cookie
     $json = json_encode($cart_items, true);
-	// have cookie stay for 1 day
+	// have cookie stay for 1 month
     setcookie('cart_cookie', $json, time() + (86400 * 30) );
  
     // redirect

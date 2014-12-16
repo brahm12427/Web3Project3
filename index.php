@@ -28,7 +28,9 @@
 	   font-family:arial;
 	}
 	
-	.price, .qty, .format, .descript, .album  { margin-left: 109px;
+	.price, .qty, .format, .descript, .album { margin-left: 118px;
+	}
+	.band  {	font-size: 19px;
 	}
 	.store{ text-align: center; 
 	}
@@ -37,7 +39,23 @@
 		margin-right: 10px;
 		margin-left:10px;
 		text-decoration: none;
-	    padding: 3px 5px;
+	    padding: 1px 2px;
+		background: #4479BA;
+		color: #FFF;
+		-webkit-border-radius: 4px;
+		-moz-border-radius: 4px;
+		border-radius: 4px;
+		border: solid 1px #20538D;
+		text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.4);
+		-webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+		-moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+		box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.2);
+	}
+	.button2 {
+		margin-right: 5px;
+		margin-left:-18px;
+		text-decoration: none;
+	    padding: 1px 2px;
 		background: #4479BA;
 		color: #FFF;
 		-webkit-border-radius: 4px;
@@ -85,9 +103,9 @@
 	$result = mysqli_query($con, $sql_select);
 	 
 	while($row = mysqli_fetch_array($result)) {
-		echo '<a href="cart.php?selId='.$row['id'].'&album='.$row['album'].'" class="button" >Add to Cart</a>';
-		echo '<b>'.$row['band'].' </b>';
-		echo "</br>";
+		echo '<div class="band"><a href="cart.php?selId='.$row['id'].'" class="button" >Add to Cart</a>';
+		echo '<b>'.$row['band'].' </b></div>';
+		
 		echo '<div class="album"><b>Album Name:</b> '.$row['album'].' </div>';
 		echo '<div class="descript"><b>Description:</b> '.$row['description'].'</div>';
 		echo '<div class="format"><b>Format:</b> '.$row['format'].'</div>';
@@ -129,9 +147,12 @@ if(count($saved_cart)>0){
  
         // our table heading
         echo "<tr>";
-			echo "<th>Action</th>";
-            echo "<th>Band Name</th>";
-            echo "<th>Price (USD)</th>";
+			echo "<th></th>";
+			echo "<th>Qty</th>";
+            echo "<th>Band</th>";
+			echo "<th>Album</th>";
+            echo "<th>Price</th>";
+			echo "<th>Item Total</th>";
         echo "</tr>";
 				
 		// get all the information for each id
@@ -140,22 +161,34 @@ if(count($saved_cart)>0){
         
         $total_price=0;
         while ($row = mysqli_fetch_array($result)){
-             
+            $currentID = $row['id']; 
             echo "<tr>";
 				 echo "<td>";
-                    echo "<a href='removeCart.php?id=".$row['id']."&band=".$row['band']."' class='button'>";
-                        echo "<span class='button'></span> Delete";
-                    echo "</a>";
-                echo "</td>";
-                echo "<td>".$row['band']."</td>";
+                    echo "<form action='removeCart.php' method='post' >
+					 <input type='submit' style='font-size: 13px' class='button'  value='Remove'/>
+				<input name='adjustID' type='hidden' value='".$currentID."'/>
+				</form>";
+				echo "</td>";
+				
+				echo "<td><form action='updateQty.php' method='post'>
+				<input name='quantity' type='text' value='".$saved_cart[$currentID]."'size='1' maxlength='2'/></br>
+				<input type='submit' style='font-size: 10px' value='change'/>
+				<input name='adjustID' type='hidden' value='".$currentID."'/>
+				</form></td>";
+				echo "<td>".$row['band']."</td>";
+				echo "<td>".$row['album']."</td>";
                 echo "<td>$".$row['price']."</td>";
+				echo "<td>$".($row['price'] * $saved_cart[$currentID])."</td>";
             echo "</tr>";
  
-            $total_price+=$row['price'];
+            $total_price =($row['price'] * $saved_cart[$currentID]) +$total_price;
         }
 		
         echo "<tr>";
-                echo "<td><b>Total</b></td>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td class='border_top' > </td>";
+				echo "<td class='border_top' ><b>Total</b></td>";
 				echo "<td class='border_top' > </td>";
                 echo "<td class='border_top'>$".$total_price."</td>";
         echo "</tr>";

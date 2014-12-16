@@ -11,12 +11,7 @@
 		WHEN band LIKE '$var%' THEN 1
 		ELSE 2 
 	END, band ASC";
-	//$sql_select = "SELECT * 
-	//from music WHERE band LIKE '$var%'
-	//ORDER BY
-	//CASE when band LIKE '$var%' THEN NULL
-	//	ELSE band END ASC";
-	
+		
 	//$result will actually be two dimentional array of the entire table
 	$result = mysqli_query($con, $sql_select);
 	while($row = mysqli_fetch_array($result)) {
@@ -31,6 +26,5 @@
 		echo "</br>";
 		echo "</br>";
 	}
-	
 	?>
 	
