@@ -17,6 +17,9 @@ $saved_cart = json_decode($cookie, true);
 // if $saved_cart_items is null, prevent null error
 if(!$saved_cart){
     $saved_cart=array();
+	//position 0 of saved_cart array will hold shipping info
+	// 1 is standard shipping, 2 is 2 day ship and 3 is overnight shipping
+	$saved_cart[0] = 1;
 }
  
 // check if the item is in the array, if it is, do not add
@@ -32,9 +35,9 @@ else{
             // add old item to array, it will prevent duplicate keys
             $cart_items[$key]=$value;
         }
+			
     }
- 
-    // put item to cookie
+	// put item to cookie
     $json = json_encode($cart_items, true);
 	// have cookie stay for 1 month
     setcookie('cart_cookie', $json, time() + (86400 * 30) );

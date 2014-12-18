@@ -5,12 +5,14 @@
 <style>
 	#wrapper{
 		margin: 0 auto;
-		width: 1400px;
-		}
+		width: 100%;
+	}
     #main {
 		float:left;
-		width:750px;
+		width:54%;
 		background:#d8d8d8;
+		padding-left: 25px;
+		padding-right:25px;
 	}
 	img {
 		display: block;
@@ -20,8 +22,9 @@
     
     #cart {
 		float:right;
-		width:600px;
+		width:42%;
 		background:#d8d8d8;
+		padding: 10px;
 	}
 	h1{
 	   color: #4479BA;
@@ -53,7 +56,7 @@
 	}
 	.button2 {
 		margin-right: 5px;
-		margin-left:-18px;
+		margin-left:-2px;
 		text-decoration: none;
 	    padding: 1px 2px;
 		background: #4479BA;
@@ -88,7 +91,7 @@
 	<img src="store.png" alt="store" style="width:10%;height:10%">
 	<div class="store"><h1> Music Store</h1></div> 
 	</br>
-	<form name="form1" action="search.php" method='post'>
+	<form name="form1"  method='post'>
 		<input type="submit" name="Submit" class="button" value="Search for Band"/>  	
 		<input name="search" type="text" size="15" maxlength="25"/>
 	</form>
@@ -98,7 +101,18 @@
 	<?php
 	// Create connection to MySQL  
 	include("dbconnect.php");
-   	$sql_select = "SELECT * From music ORDER BY band";
+	//if someone enters information into search field then use first sql_select otherwise just dump database in band order
+	if (isset($_POST['search'])) {
+		$var = $_POST['search'];
+		$sql_select = "SELECT * From music 
+			ORDER BY 
+			CASE	
+				WHEN band LIKE '$var%' THEN 1
+				ELSE 2 
+			END, band ASC";
+	} else {		
+			$sql_select = "SELECT * From music ORDER BY band";
+		}
 	// $result will actually be two dimentional array of the entire table
 	$result = mysqli_query($con, $sql_select);
 	 
@@ -132,20 +146,19 @@
 			$cookie = $_COOKIE['cart_cookie'];
 			$cookie = stripslashes($cookie);
 			$saved_cart = json_decode($cookie, true);
-		}
+			}
 
 if(count($saved_cart)>0){
     // get the music ids
     $ids = "";
-    foreach($saved_cart as $id=>$name){
+	foreach($saved_cart as $id=>$name){
         $ids = $ids . $id . ",";
     }
-     // remove the last comma
+	// remove the last comma
     $ids = rtrim($ids, ',');
      //start table
     echo "<table>";
- 
-        // our table heading
+    // our table heading
         echo "<tr>";
 			echo "<th></th>";
 			echo "<th>Qty</th>";
@@ -158,8 +171,8 @@ if(count($saved_cart)>0){
 		// get all the information for each id
         $sql_select = "SELECT id, band, album, price FROM music WHERE id IN ({$ids}) ORDER BY band";
 		$result = mysqli_query($con, $sql_select);
-        
-        $total_price=0;
+		$shipCost = 0;
+        $totalPrice=0;
         while ($row = mysqli_fetch_array($result)){
             $currentID = $row['id']; 
             echo "<tr>";
@@ -172,7 +185,7 @@ if(count($saved_cart)>0){
 				
 				echo "<td><form action='updateQty.php' method='post'>
 				<input name='quantity' type='text' value='".$saved_cart[$currentID]."'size='1' maxlength='2'/></br>
-				<input type='submit' style='font-size: 10px' value='change'/>
+				<input type='submit' class='button2' style='font-size: 10px' value='update'/>
 				<input name='adjustID' type='hidden' value='".$currentID."'/>
 				</form></td>";
 				echo "<td>".$row['band']."</td>";
@@ -181,16 +194,74 @@ if(count($saved_cart)>0){
 				echo "<td>$".($row['price'] * $saved_cart[$currentID])."</td>";
             echo "</tr>";
  
-            $total_price =($row['price'] * $saved_cart[$currentID]) +$total_price;
+            $totalPrice =($row['price'] * $saved_cart[$currentID]) +$totalPrice;
         }
+		 echo "<tr>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td class='border_top'></td>";
+				echo "<td class='border_top'><b>Sub-Total</b></td>";
+				echo "<td class='border_top'></td>";
+                echo "<td class='border_top'>$".$totalPrice."</td>";
+        echo "</tr>";
+		echo "<tr>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td><form action='getShip.php' method='post'><input type='submit' class='button2' style='font-size: 10px' value='update ship fees'/></td>";
+				echo "<td>";
+				//position 0 of saved_cart array will hold shipping info
+				// 1 is standard shipping, 2 is 2 day ship and 3 is overnight shipping
+				switch ($saved_cart[0]) {
+					case '1':
+						echo "<input type='radio' name='ship' checked='checked' value='1'>Standard Ship-$5.99<br>";
+						echo "<input type='radio' name='ship' value='2'>2-day Ship-$9.99<br>";
+						echo "<input type='radio' name='ship' value='3'>Overnight Ship-$19.99";
+						echo "</form></td>";
+						$shipCost = 5.99;
+						break;
+					case '2':
+						echo "<input type='radio' name='ship' value='1'>Standard Ship-$5.99<br>";
+						echo "<input type='radio' name='ship' checked='checked' value='2'>2-day Ship-$9.99<br>";
+						echo "<input type='radio' name='ship' value='3'>Overnight Ship-$19.99";
+						echo "</form></td>";
+						$shipCost = 9.99;
+						break;
+					case '3':
+						echo "<input type='radio' name='ship' value='1'>Standard Ship-$5.99<br>";
+						echo "<input type='radio' name='ship' value='2'>2-day Ship-$9.99<br>";
+						echo "<input type='radio' name='ship' checked='checked' value='3'>Overnight Ship-$19.99";
+						echo "</form></td>";
+						$shipCost = 19.99;
+						break;
+					default:
+						echo "<input type='radio' name='ship' checked='checked' value='1'>Standard Ship-$5.99<br>";
+						echo "<input type='radio' name='ship' value='2'>2-day Ship-$9.99<br>";
+						echo "<input type='radio' name='ship' value='3'>Overnight Ship-$19.99";
+						echo "</form></td>";
+						$shipCost = 5.99;
+						break;
 		
+			}
+			echo "<td></td>";
+		
+        echo "<td> $".$shipCost."</td>";
+		echo "</tr>";
+		$totalPrice = $totalPrice + $shipCost;
+		echo "<tr>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td></td>";
+				echo "<td></td>";
+                echo "<td></td>";
+        echo "</tr>";
         echo "<tr>";
 				echo "<td></td>";
 				echo "<td></td>";
-				echo "<td class='border_top' > </td>";
-				echo "<td class='border_top' ><b>Total</b></td>";
-				echo "<td class='border_top' > </td>";
-                echo "<td class='border_top'>$".$total_price."</td>";
+				echo "<td> </td>";
+				echo "<td><b>Total</b></td>";
+				echo "<td> </td>";
+                echo "<td>$".$totalPrice."</td>";
         echo "</tr>";
  
     echo "</table>";
