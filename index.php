@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <head>
+<meta name="robots" content="noindex">
 <title>Music List</title>
 
 <style>
@@ -107,7 +108,7 @@
 		$sql_select = "SELECT * From music 
 			ORDER BY 
 			CASE	
-				WHEN band LIKE '$var%' THEN 1
+				WHEN band LIKE '$var%' OR band >= '$var%' THEN 1
 				ELSE 2 
 			END, band ASC";
 	} else {		
